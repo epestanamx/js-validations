@@ -17,34 +17,37 @@ module.exports = (params, rules) => {
       for (let specificRule of rules[field].split('|')) {
         let error;
 
-        switch (specificRule.split(':')[0]) {
-          case 'accepted':
-            error = accepted(params[field]);
-            break;
-          case 'required':
-            error = required(params[field]);
-            break;
-          case 'number':
-            error = number(params[field]);
-            break;
-          case 'float':
-            error = float(params[field]);
-            break;
-          case 'array':
-            error = array(params[field]);
-            break;
-          case 'json':
-            error = json(params[field]);
-            break;
-          case 'email':
-            error = email(params[field]);
-            break;
-          case 'in':
-            error = inArray(params[field], specificRule.split(':')[1]);
-            break;
-          case 'notIn':
-            error = notInArray(params[field], specificRule.split(':')[1]);
-            break;
+        if(specificRule.split(':')[0] == 'required') {
+          error = required(params[field]);
+        }
+
+        if(params[field]) {
+          switch (specificRule.split(':')[0]) {
+            case 'accepted':
+              error = accepted(params[field]);
+              break;
+            case 'integer':
+              error = integer(params[field]);
+              break;
+            case 'float':
+              error = float(params[field]);
+              break;
+            case 'array':
+              error = array(params[field]);
+              break;
+            case 'json':
+              error = json(params[field]);
+              break;
+            case 'email':
+              error = email(params[field]);
+              break;
+            case 'in':
+              error = inArray(params[field], specificRule.split(':')[1]);
+              break;
+            case 'notIn':
+              error = notInArray(params[field], specificRule.split(':')[1]);
+              break;
+          }
         }
 
         if(error) {
@@ -65,7 +68,7 @@ module.exports = (params, rules) => {
 
 const accepted = (value) => {
   if(!(value == 1 || value == 'on' || value == 'true')) {
-    return 'El campo debería ser (1, on, true).';
+    return 'The field should be  (1, on, true).';
   }
 };
 
@@ -75,15 +78,15 @@ const required = (value) => {
   }
 };
 
-const number = (value) => {
-  if(!parseInt(value)) {
-    return 'El campo debería ser númerico.';
+const integer = (value) => {
+  if(parseInt(value) != value) {
+    return 'The field should be integer.';
   }
 };
 
 const float = (value) => {
   if(!parseFloat(value)) {
-    return 'El campo debería ser númerico.';
+    return 'The field should be decimal.';
   }
 };
 
@@ -91,10 +94,10 @@ const array = (value) => {
   try {
     value = JSON.parse(value);
     if(!Array.isArray(value)) {
-      return 'El campo debería ser un array.';
+      return 'The field should be array.';
     }
   } catch (e) {
-    return 'El campo debería ser un array.';
+    return 'The field should be array.';
   }
 };
 
@@ -103,7 +106,7 @@ const json = (value) => {
     value = JSON.parse(value);
   } catch (e) {
     if(typeof value !== 'object') {
-      return 'El campo debería ser un objecto.';
+      return 'The field should be object.';
     }
   }
 };
@@ -112,7 +115,7 @@ const inArray = (value, array) => {
   array = array.split(',');
 
   if(!array.includes(value)) {
-    return `El campo debería ser alguno de los siguientes elementos: ${array.join(', ')}`;
+    return `The field should be of the elements: ${array.join(', ')}`;
   }
 };
 
@@ -120,13 +123,13 @@ const notInArray = (value, array) => {
   array = array.split(',');
 
   if(array.includes(value)) {
-    return `El campo no debería ser ninguno de los siguientes elementos: ${array.join(', ')}`;
+    return `The field should not be any of the following elements: ${array.join(', ')}`;
   }
 };
 
 const email = (value) => {
   const regex = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/;
   if(!regex.test(value)) {
-    return 'El campo debería ser de tipo email.';
+    return 'The field should be a valid email.';
   }
 };
